@@ -30,7 +30,7 @@ function onDrag(event) {
     @mouseup="setIsDragging(false)"
     @mousemove="onDrag"
   >
-    <header class="product-viewer__header">
+    <header class="product-viewer__header" v-if="$slots.header">
       <slot name="header" />
     </header>
     <canvas
@@ -39,7 +39,7 @@ function onDrag(event) {
     >
       <slot name="js-disabled">This component does not function properly without javascript</slot>
     </canvas>
-    <footer class="product-viewer__footer">
+    <footer class="product-viewer__footer" v-if="$slots.footer">
       <slot name="footer" />
     </footer>
   </div>
