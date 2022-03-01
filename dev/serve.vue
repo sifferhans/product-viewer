@@ -30,23 +30,31 @@ onBeforeMount(() => {
         @drag-right="onDragRight"
         @drag-left="onDragLeft"
         :images="images"
-        :speed="10"
+        :speed="0.5"
       >
         <template #header="{ activeFrame }">
-          <div class="product-title">
+          <div class="product-header">
             <b>From scoped slot</b>
             <div>Active frame: <span>{{ activeFrame }}</span></div>
           </div>
         </template>
+        <template #footer>
+          <div class="product-footer">
+            <b>From events</b>
+            <div>Active frame: <span ref="frameRef"></span></div>
+            <div>Delta: <span ref="directionRef"></span></div>
+          </div>
+        </template>
       </product-viewer>
-      <b>From events:</b>
-      <div>Active frame: <span ref="frameRef"></span></div>
-      <div>Delta: <span ref="directionRef"></span></div>
     </div>
   </div>
 </template>
 
 <style>
+:root {
+  --color-border: #e5e5e5;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -57,7 +65,7 @@ body {
 }
 
 #app {
-  padding: 2rem;
+  padding-block: 2rem;
   margin: 0;
   height: 50vh;
   width: 100vw;
@@ -67,9 +75,13 @@ body {
   width: 480px;
   height: 327px;
   margin: 0 auto;
+  outline: 1px solid var(--color-border);
+  border-radius: 8px;
+  overflow: hidden;
 }
 
-.product-title {
+.product-header,
+.product-footer {
   padding: 0.75rem 1rem;
 }
 </style>
