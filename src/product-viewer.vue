@@ -1,13 +1,19 @@
 <script setup>
-import { ref, defineEmits, onMounted, onUnmounted } from 'vue'
+import { ref, defineEmits, onMounted, onUnmounted, computed } from 'vue'
 
 const emit = defineEmits(['drag-right','drag-left'])
 const props = defineProps({
   images: Array,
-  speed: Number
+  speed: {
+    type: Number,
+    default: 1
+  }
 })
 
 const activeFrame = ref(1)
+const computedFrame = computed(() => {
+  return Math.floor(activeFrame.value)
+})
 const isDragging = ref(false)
 
 function setIsDragging(state) {
@@ -18,26 +24,31 @@ function onDrag(event) {
   if(!isDragging.value) return
   
   if(event.movementX > 0) {
-    activeFrame.value --
+    activeFrame.value -= (props.speed * mapNumber(event.movementX, [1, 60], [1, 10]))
     if(activeFrame.value < 1) activeFrame.value = props.images.length
 
     emit('drag-right', {
-      currentFrame: activeFrame.value,
+      currentFrame: computedFrame.value,
       totalFrames: props.images.length,
       direction: event.movementX
     })
   }
 
   if(event.movementX < 0) {
-    activeFrame.value ++
+    activeFrame.value += (props.speed * mapNumber(event.movementX, [-1, -60], [1, 10]))
     if(activeFrame.value > props.images.length) activeFrame.value = 1
 
     emit('drag-left', {
-      currentFrame: activeFrame.value,
+      currentFrame: computedFrame.value,
       totalFrames: props.images.length,
       direction: event.movementX
     })
   }
+}
+
+function mapNumber(value, oldRange, newRange) {
+  const newValue = (value - oldRange[0]) * (newRange[1] - newRange[0]) / (oldRange[1] - oldRange[0]) + newRange[0];
+  return Math.min(Math.max(newValue, newRange[0]) , newRange[1]);
 }
 
 onMounted(() => {
@@ -63,7 +74,7 @@ onUnmounted(() => {
     @mousedown="setIsDragging(true)"
   >
     <header class="product-viewer__header" v-if="$slots.header">
-      <slot name="header" :active-frame="activeFrame" />
+      <slot name="header" :active-frame="computedFrame" />
     </header>
     <div class="product-viewer__images">
       <img
@@ -72,7 +83,7 @@ onUnmounted(() => {
         :key="`product-viewer-image-${i+1}`"
         :src="image"
         alt=""
-        :class="{ 'product-viewer__image--active': activeFrame == i+1 }"
+        :class="{ 'product-viewer__image--active': computedFrame == i+1 }"
       />
     </div>
     <footer class="product-viewer__footer" v-if="$slots.footer">
